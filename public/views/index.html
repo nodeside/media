@@ -1,0 +1,142 @@
+<div class="" data-ng-controller="MediaController" data-ng-init="find()">
+    <div class="row ">
+        <div class="col-sm-6">
+            <div class="col-md-4">
+                <input type="search" ng-change="searchList(searchval)" ng-model="searchval"/>
+            </div>
+            <div class="col-md-4">
+                <select data-ng-model='mediaFilter' ng-change='filterList(mediaFilter)'>
+                    <option value="all">All</option>
+                    <option  ng-repeat="media in filterData  | unique:'mimeType' ">{{media.mimeType}}</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <button ng-click="toggle()"> Add Media </button>
+            </div>       
+        </div>       
+    </div>
+
+    <div class="row">
+        <form ng-hide="myform" name="mediaForm" enctype="multipart/form-data" class="form-horizontal col-md-6" role="form" data-ng-submit="create(mediaForm.$valid)" novalidate>
+            <hr>
+            <div class="form-group" ng-class="{ 'has-error' : submitted && mediaForm.name.$invalid }">
+                <label mean-token="'create-name'" class="col-md-2 control-label">Name</label>
+                <div class="col-md-10">
+                    <input name="name" type="text" class="form-control" data-ng-model="name" id="name" placeholder="Name" required>
+                    <div ng-show="submitted && mediaForm.name.$invalid" class="help-block">
+                        <p ng-show="mediaForm.name.$error.required">Name is required</p>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" ng-class="{ 'has-error' : submitted && mediaForm.desc.$invalid }">
+                <label mean-token="'create-desc'" class="col-md-2 control-label">Description</label>
+                <div class="col-md-10">
+                    <input name="desc" type="text" class="form-control" data-ng-model="desc" id="desc" placeholder="Description" required>
+                    <div ng-show="submitted && mediaForm.desc.$invalid" class="help-block">
+                        <p ng-show="mediaForm.desc.$error.required">Description is required</p>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" ng-class="{ 'has-error' : submitted && mediaForm.file_browse.$invalid }">
+                <label mean-token="'create-file_browse'" class="col-md-2 control-label">Media</label>
+                <div class="col-md-10">
+                    <!--<input name="imgName" type="file" class="form-control" id="imgName" required>-->
+                    <mean-upload file-dest="'/upload/media/'"  upload-file-callback="uploadFileArticleCallback(file)"></mean-upload>
+                    <div ng-show="submitted && mediaForm.file_browse.$invalid" class="help-block">
+                        <p ng-show="mediaForm.file_browse.$error.required">Image is required</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <button mean-token="'create-submit'" type="submit" class="btn btn-success">Submit</button>
+                    <button type="button"  ng-click="cancelAdd()"  class="btn btn-default">Cancel</button>
+                </div>
+            </div>
+            <hr>
+        </form>
+    </div>
+    <div class='row'>
+        <div class='col-sm-6'>
+            <div class='box bordered-box blue-border' style='margin-bottom:0;'>
+                <div class='box-content box-no-padding'>
+                    <div class='responsive-table'>
+                        <div class='scrollable-area'>
+                            <table class='table' style='margin-bottom:0;'>
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            Name
+                                        </th>
+                                        <th>
+                                            Image
+                                        </th>
+                                        <th>
+                                            Action
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr data-ng-repeat="media in meidaList">
+                                        <td>{{media.name}}</td>
+                                        <td>
+                                            <span data-ng-if="media.imageName != null ">{{media.imageName}}</span>
+                                        </td>
+                                        <td>
+                                            <a class="btn"  ng-click="findOne(media._id)"> <!-- href="/#!/media/{{media._id}}/edit" -->
+                                                <i class="glyphicon glyphicon-edit"></i>
+                                            </a>
+                                            <a class="btn" data-ng-click="remove(media);">
+                                                <i class="glyphicon glyphicon-trash"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+
+        <div ng-hide="editForm">
+            <hr>
+            <form name="editMediaForm" class="form-horizontal col-md-6" role="form" data-ng-submit="update(editMediaForm.$valid)" novalidate>
+                <div class="form-group" ng-class="{ 'has-error' : submitted && editMediaForm.name.$invalid }">
+                    <label mean-token="'edit-name'" for="name" class="col-md-2 control-label">Name</label>
+                    <div class="col-md-10">
+                        <input name="name" type="text" class="form-control" data-ng-model="media.name" id="title" placeholder="Name" required>
+                        <div ng-show="submitted && editMediaForm.name.$invalid" class="help-block">
+                            <p ng-show="editMediaForm.name.$error.required">Name is required</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" ng-class="{ 'has-error' : submitted && editMediaForm.description.$invalid }">
+                    <label mean-token="'edit-description'" for="description" class="col-md-2 control-label">Description</label>
+                    <div class="col-md-10">
+                        <input name="description" type="text" class="form-control" data-ng-model="media.description" id="description" placeholder="Description" required>
+                        <div ng-show="submitted && editMediaForm.description.$invalid" class="help-block">
+                            <p ng-show="editMediaForm.description.$error.required">Description is required</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-2 control-label">Media</label>
+                    <div class="col-md-10">
+                        <img src="/upload/media/{{media.imageName}}" style="height: 200px;"/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                        <button mean-token="'edit-submit'" type="submit" class="btn btn-info">Submit</button>
+                        <button type="button"  ng-click="cancelEdit()"  class="btn btn-default">Cancel</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
